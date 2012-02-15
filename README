@@ -1,0 +1,8 @@
+Moving towards a simple SDRAM controller. The simulations use GHDL & GTKWave. Unfortunately the
+versions of GTKWave in most Linux distributions are buggy, so it's necessary to build it from
+source. The build-gtkwave.sh script will help with that.
+
+pcb - The Eagle design files for the SDRAM daughterboard.
+try1 - Sanity check. Initialise the SDRAM, activate a row, do four writes followed by a read.
+
+Chris McClelland 2012-02-15
