@@ -18,68 +18,41 @@ library ieee;
 
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+
 use work.memctrl_pkg.all;
 
 entity toplevel is
 	port(
 		-- Reset & 48MHz clock
-		reset_in    : in std_logic;
-		ifclk_in    : in std_logic;
+		ifclk_in    : in    std_logic;
 
 		-- SDRAM interface
-		ramClk_out  : out std_logic;
-		ramRAS_out  : out std_logic;
-		ramCAS_out  : out std_logic;
-		ramWE_out   : out std_logic;
-		ramAddr_out : out std_logic_vector(11 downto 0);
+		ramClk_out  : out   std_logic;
+		ramRAS_out  : out   std_logic;
+		ramCAS_out  : out   std_logic;
+		ramWE_out   : out   std_logic;
+		ramAddr_out : out   std_logic_vector(11 downto 0);
 		ramData_io  : inout std_logic_vector(15 downto 0);
-		ramBank_out : out std_logic_vector(1 downto 0);
-		ramLDQM_out : out std_logic;
-		ramUDQM_out : out std_logic;
+		ramBank_out : out   std_logic_vector(1 downto 0);
+		ramLDQM_out : out   std_logic;
+		ramUDQM_out : out   std_logic;
 
 		-- Onboard peripherals
-		sseg_out    : out std_logic_vector(7 downto 0);
-		anode_out   : out std_logic_vector(3 downto 0)
+		sseg_out    : out   std_logic_vector(7 downto 0);
+		anode_out   : out   std_logic_vector(3 downto 0)
 	);
 end entity;
  
 architecture behavioural of toplevel is
-
 	signal ssData      : std_logic_vector(15 downto 0);
 	signal ssData_next : std_logic_vector(15 downto 0);
 	signal mcRDV       : std_logic;
-
 begin
-
-	-- Infer the memory controller
-	--
-	u1: memctrl
-		generic map(
-			INIT_COUNT => "1" & x"2C0"  -- 100uS @ 48MHz
-		)
-		port map(
-			mcRst_in    => reset_in,
-			mcClk_in    => ifclk_in,
-
-			mcRDV_out   => mcRDV,  -- Read Data Valid
-
-			ramRAS_out  => ramRAS_out,
-			ramCAS_out  => ramCAS_out,
-			ramWE_out   => ramWE_out,
-			ramAddr_out => ramAddr_out,
-			ramData_io  => ramData_io,
-			ramBank_out => ramBank_out,
-			ramLDQM_out => ramLDQM_out,
-			ramUDQM_out => ramUDQM_out
-		);
-
 	-- Infer a 16-bit register for ssData.
 	--
-	process(ifclk_in, reset_in)
+	process(ifclk_in)
 	begin
-		if ( reset_in = '1' ) then
-			ssData <= (others => '0');
-		elsif ( ifclk_in'event and ifclk_in = '1' ) then
+		if ( rising_edge(ifclk_in) ) then
 			ssData <= ssData_next;
 		end if;
 	end process;
@@ -94,15 +67,35 @@ begin
 	--
 	ramClk_out <= ifclk_in;
 	
+	-- Infer the memory controller
+	--
+	memctrl: entity work.memctrl
+		generic map(
+			INIT_COUNT => "1" & x"2C0"  -- 100uS @ 48MHz
+		)
+		port map(
+			mcClk_in    => ifclk_in,
+			mcRDV_out   => mcRDV,  -- Read Data Valid
+
+			ramRAS_out  => ramRAS_out,
+			ramCAS_out  => ramCAS_out,
+			ramWE_out   => ramWE_out,
+			ramAddr_out => ramAddr_out,
+			ramData_io  => ramData_io,
+			ramBank_out => ramBank_out,
+			ramLDQM_out => ramLDQM_out,
+			ramUDQM_out => ramUDQM_out
+		);
+
 	-- Display the current value registered in ssSata.
 	--
-	sevenSeg : entity work.sevenseg
+	sseg_out(7) <= '1';  -- Decimal point off
+	sevenseg : entity work.sevenseg
 		port map(
 			clk    => ifclk_in,
 			data   => ssData,
 			segs   => sseg_out(6 downto 0),
 			anodes => anode_out
 		);
-	sseg_out(7) <= '1';  -- Decimal point off
 
 end architecture;

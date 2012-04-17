@@ -27,7 +27,6 @@ entity memctrl is
 	);
 	port(
 		-- Client interface
-		mcRst_in    : in std_logic;
 		mcClk_in    : in std_logic;
 		mcRDV_out   : out std_logic;  -- Read Data Valid flag
 
@@ -46,7 +45,6 @@ end entity;
 architecture behavioural of memctrl is
 	type StateType is (
 		-- Initialisation states
-		S_RESET,
 		S_INIT_WAIT,
 		S_INIT_PRE,
 		S_INIT_REF1,
@@ -89,20 +87,17 @@ architecture behavioural of memctrl is
 	--                                                       /      /     /      /       /     /
 	--                                                      /      /     /      /       /     /
 	constant LMR_VALUE : std_logic_vector(11 downto 0) := "00" & "1" & "00" & "010" & "0" & "000";
-	signal state       : StateType;
+	signal state       : StateType := S_INIT_WAIT;
 	signal state_next  : StateType;
-	signal count       : unsigned(12 downto 0);
+	signal count       : unsigned(12 downto 0) := INIT_COUNT;
 	signal count_next  : unsigned(12 downto 0);
 
 begin
 	
 	-- Infer registers for state & count
-	process(mcRst_in, mcClk_in)
+	process(mcClk_in)
 	begin
-		if ( mcRst_in = '1' ) then
-			state <= S_RESET;
-			count <= (others => '0');
-		elsif ( mcClk_in'event and mcClk_in = '1' ) then
+		if ( rising_edge(mcClk_in) ) then
 			state <= state_next;
 			count <= count_next;
 		end if;
@@ -119,10 +114,6 @@ begin
 		ramData_io  <= (others => 'Z');
 		mcRDV_out   <= '0';
 		case state is
-			when S_RESET =>
-				count_next <= INIT_COUNT;
-				state_next <= S_INIT_WAIT;
-
 			----------------------------------------------------------------------------------------
 			-- The init sequence: 4800 NOPs, PRE all, 2xREF, & LMR
 			----------------------------------------------------------------------------------------
@@ -218,7 +209,7 @@ begin
 				mcRDV_out <= '1';
 				state_next <= S_IDLE;
 
-			when S_IDLE =>
+			when others =>
 
 		end case;
 	end process;

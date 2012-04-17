@@ -16,7 +16,6 @@
 #
 MODULE := memctrl
 SIGNALS := \
-	uut.mcRst_in \
 	ramClk \
 	- \
 	uut.mcRDV_out \

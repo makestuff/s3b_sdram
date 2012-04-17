@@ -26,7 +26,6 @@ package memctrl_pkg is
 		);
 		port(
 			-- Client interface
-			mcRst_in        : in std_logic;
 			mcClk_in        : in std_logic;
 			mcRDV_out       : out std_logic;
 

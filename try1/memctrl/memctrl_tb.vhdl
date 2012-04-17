@@ -29,7 +29,6 @@ end memctrl_tb;
 architecture behavioural of memctrl_tb is
 
 	-- Memory controller signals
-	signal mcRst       : std_logic;
 	signal mcClk       : std_logic;
 	signal mcRDV       : std_logic;
 
@@ -53,7 +52,6 @@ begin
 			INIT_COUNT => "0" & x"004"  -- Much longer in real hardware!
 		)
 		port map(
-			mcRst_in        => mcRst,
 			mcClk_in        => mcClk,
 			mcRDV_out       => mcRDV,
 
@@ -74,17 +72,12 @@ begin
 	process
 	begin
 		mcClk <= '0';
-		mcRst <= '1';
 		ramData_io <= (others => 'Z');		
 
 		ramClk <= '1';
-		wait for 4 ns;
-		mcClk <= '1';
-
-		wait for 6 ns;
+		wait for 10 ns;
 		ramClk <= '0';
 		wait for 4 ns;
-		mcRst <= '0';
 		loop
 			mcClk <= '0';
 			wait for 6 ns;
