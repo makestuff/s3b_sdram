@@ -1,7 +1,7 @@
-111 NOP
-011 ACT
-101 READ
-100 WRITE
-010 PRE
-001 REF
-000 LMR
+111 nop
+011 act
+101 read
+100 write
+010 pre
+001 ref
+000 lmr

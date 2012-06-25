@@ -77,8 +77,8 @@ waves: simulation
 	@echo "for { set i 0 } { \$$i <= [ gtkwave::getVisibleNumTraces ] } { incr i } { gtkwave::setTraceHighlightFromIndex \$$i off }" >> simulation/startup.tcl
 	@echo "gtkwave::setLeftJustifySigs on" >> simulation/startup.tcl
 	cat simulation/startup.tcl
-	/usr/local/bin/gtkwave -T simulation/startup.tcl simulation/${MODULE}_tb.ghw
-	#gtkwave -T simulation/startup.tcl simulation/${MODULE}_tb.ghw
+	#/usr/local/bin/gtkwave -T simulation/startup.tcl simulation/${MODULE}_tb.ghw
+	gtkwave -T simulation/startup.tcl simulation/${MODULE}_tb.ghw
 
 clean: FORCE
 	rm -rf synthesis simulation results.txt
